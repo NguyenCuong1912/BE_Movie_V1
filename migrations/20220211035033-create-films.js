@@ -14,6 +14,9 @@ module.exports = {
       trailer: {
         type: Sequelize.STRING,
       },
+      actor: {
+        type: Sequelize.STRING,
+      },
       imgFilm: {
         type: Sequelize.STRING,
       },

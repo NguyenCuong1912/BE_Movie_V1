@@ -11,6 +11,7 @@ const create = async (req, res) => {
     showtime,
     rate,
     comingSoon,
+    actor,
     nowShowing,
   } = body;
   try {
@@ -25,6 +26,7 @@ const create = async (req, res) => {
         rate,
         comingSoon,
         nowShowing,
+        actor,
       });
       res.status(201).send({
         message: "Thêm Phim thành công",
@@ -116,6 +118,7 @@ const updateFilm = async (req, res) => {
     description,
     showtime,
     rate,
+    actor,
     comingSoon,
     nowShowing,
   } = body;
@@ -135,6 +138,7 @@ const updateFilm = async (req, res) => {
     filmUpdate.comingSoon = comingSoon;
     filmUpdate.nowShowing = nowShowing;
     filmUpdate.imgFilm = imgFilm;
+    filmUpdate.actor = actor;
     await filmUpdate.save();
     res.status(200).send({
       message: "Cập nhập Phim thành công",
