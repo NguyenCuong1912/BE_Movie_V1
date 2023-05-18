@@ -29,9 +29,14 @@ const signUp = async (req, res) => {
         typeUser: type,
         avatar: avatarUrl,
       });
-      res.status(201).send(newUser);
+      res.status(201).send({
+        notify: "SUCCESS",
+        newUser,
+      });
     } else {
-      res.status(403).send("Email đã tồn tại");
+      res.status(200).send({
+        notify: "EMAIL_EXISTS",
+      });
     }
   } catch (error) {
     res.status(500).send(error);
@@ -54,7 +59,7 @@ const signIn = async (req, res) => {
               checkUser.typeUser = user_type;
               checkUser.password = undefined;
               res.status(200).send({
-                message: "LOGIN SUCCESS",
+                notify: "SUCCESS",
                 user: {
                   token,
                   userLogin: checkUser,
@@ -62,16 +67,22 @@ const signIn = async (req, res) => {
               });
             }
           } else {
-            res.status(403).send("Password sai");
+            res.status(200).send({
+              notify: "PASSWORD_ERROR",
+            });
           }
         } else {
-          res.status(403).send("Tài khoản của bạn đã bị khóa  ");
+          res.status(200).send({
+            notify: "LOCKED",
+          });
         }
       } else {
         res.status(404).send("EMAIL không hoạt động ");
       }
     } else {
-      res.status(404).send("EMAIL không tồn tại");
+      res.status(200).send({
+        notify: "EMAIL_NOT_FOUND",
+      });
     }
   } catch (error) {
     res.status(500).send(error);
