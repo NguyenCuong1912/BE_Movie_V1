@@ -32,7 +32,6 @@ const getDetail = async (req, res) => {
 };
 const deleteBanner = async (req, res) => {
   const { details } = req;
-  console.log(details);
   try {
     await details.destroy();
     res.status(200).send(details);

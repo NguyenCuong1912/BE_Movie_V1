@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Users extends Model {
     /**
@@ -11,54 +9,61 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({ TypeUser, Tickets }) {
       // define association here
-      this.belongsTo(TypeUser, { foreignKey: "typeUser", as: 'type_user' });
-      this.hasMany(Tickets, { foreignKey: 'userId', as: 'user' });
+      this.belongsTo(TypeUser, { foreignKey: "typeUser", as: "type_user" });
+      this.hasMany(Tickets, { foreignKey: "userId", as: "user" });
     }
   }
-  Users.init({
-    userName: {
-      type: DataTypes.STRING,
-      allowNull: 'false',
-      validate: {
-        notEmpty: true
-      }
+  Users.init(
+    {
+      userName: {
+        type: DataTypes.STRING,
+        allowNull: "false",
+        validate: {
+          notEmpty: true,
+        },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: "false",
+        validate: {
+          notEmpty: true,
+        },
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: "false",
+        validate: {
+          notEmpty: true,
+          isEmail: true,
+        },
+      },
+      phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: "false",
+        validate: {
+          notEmpty: true,
+        },
+      },
+      avatar: {
+        type: DataTypes.STRING,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      isVerify: {
+        defaultValue: false,
+        type: DataTypes.BOOLEAN,
+      },
+      isBlock: {
+        defaultValue: false,
+        type: DataTypes.BOOLEAN,
+      },
+      isActive: DataTypes.BOOLEAN,
     },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: 'false',
-      validate: {
-        notEmpty: true
-      }
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: 'false',
-      validate: {
-        notEmpty: true,
-        isEmail: true
-      }
-    },
-    phoneNumber: {
-      type: DataTypes.STRING,
-      allowNull: 'false',
-      validate: {
-        notEmpty: true,
-      }
-    },
-    avatar: {
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: true
-      }
-    },
-    isBlock: {
-      defaultValue: false,
-      type: DataTypes.BOOLEAN
-    },
-    isActive: DataTypes.BOOLEAN
-  }, {
-    sequelize,
-    modelName: 'Users',
-  });
+    {
+      sequelize,
+      modelName: "Users",
+    }
+  );
   return Users;
 };

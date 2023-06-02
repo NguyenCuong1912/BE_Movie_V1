@@ -3,13 +3,14 @@ const { Op, QueryTypes } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const gravatarUrl = require("gravatar-url");
 var jwt = require("jsonwebtoken");
+const { compareBcrypt } = require("../middleware/Bcrypt");
 // lấy loại người dùng từ bảng TypeUser
 const getTypeUser = async (id) => {
   const user_type = await TypeUser.findOne({ where: { id } });
   return user_type;
 };
 ///-----
-const signUp = async (req, res) => {
+const signUp = async (req, res, next) => {
   const { userName, password, email, phoneNumber, typeUser } = req.body;
   try {
     const checkUser = await Users.findOne({ where: { email } });
@@ -29,10 +30,8 @@ const signUp = async (req, res) => {
         typeUser: type,
         avatar: avatarUrl,
       });
-      res.status(201).send({
-        notify: "SUCCESS",
-        newUser,
-      });
+      req.userRegister = newUser;
+      next();
     } else {
       res.status(200).send({
         notify: "EMAIL_EXISTS",
@@ -118,21 +117,22 @@ const updateUser = async (req, res) => {
       if (password) {
         const salt = bcrypt.genSaltSync(10);
         const hashPassword = bcrypt.hashSync(password, salt);
+
         const updated = await update(
           userName,
-          hashPassword,
           phoneNumber,
           avatar,
-          typeUser
+          typeUser,
+          hashPassword
         );
         res.status(200).send(updated);
       } else {
         const updated = await update(
           userName,
-          password,
           phoneNumber,
           avatar,
-          typeUser
+          typeUser,
+          password
         );
         res.status(200).send(updated);
       }
@@ -157,7 +157,8 @@ const updateUser = async (req, res) => {
               userName,
               phoneNumber,
               avatar,
-              typeUser
+              typeUser,
+              hashPassword
             );
             res.status(200).send(updated);
           }
@@ -236,25 +237,34 @@ const getDetailsUser = async (req, res) => {
 const getUserWithShowTimeID = async (req, res) => {
   const { id } = req.query;
   try {
-    const lstUser = await sequelize.query(
-      `
-            select distinct userName , email , phoneNumber, count(*) as numberTicket 
+    sequelize
+      .query(
+        `
+            select distinct users.id as userId, userName , email , phoneNumber, count(*) as numberTicket 
             from (seats
             inner join users on users.id = seats.idUser)
             where seats.idShowTime = ${id}
             group by idUser;
         `,
-      { type: QueryTypes.SELECT }
-    );
-    const listSeat = await sequelize.query(
-      `
-                select distinct seatName
+        { type: QueryTypes.SELECT }
+      )
+      .then(async (data) => {
+        let hacks = [];
+        for (const user of data) {
+          const listSeat = await sequelize.query(
+            `select distinct seatName
                 from (seats
                 inner join users on users.id = seats.idUser)
-                where seats.idShowTime = ${id}`,
-      { type: QueryTypes.SELECT }
-    );
-    res.status(200).send({ lstUser, listSeat });
+                where seats.idShowTime = ${id} and seats.idUser = ${user.userId}`,
+            { type: QueryTypes.SELECT }
+          );
+          user.listSeat = listSeat.map((seat) => {
+            return seat.seatName;
+          });
+          hacks = [...hacks, user];
+        }
+        res.status(200).send(hacks);
+      });
   } catch (error) {
     res.status(500).send(error);
   }
@@ -290,8 +300,24 @@ const BlockAndUnBlock = async (req, res) => {
     res.status(500).send(error);
   }
 };
+const verifyEmail = async (req, res) => {
+  const { email, id } = req.query;
+  console.log(email);
+  try {
+    const userVerify = await Users.findOne({ where: { id } });
+    if (compareBcrypt(userVerify.email, email)) {
+      console.log("aaa");
+      userVerify.isVerify = true;
+      await userVerify.save();
+    }
+    res.send(`Email ${userVerify.email} của bạn đã được xác minh`);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports = {
+  verifyEmail,
   signUp,
   signIn,
   updateUser,
