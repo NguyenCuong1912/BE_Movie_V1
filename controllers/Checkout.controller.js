@@ -27,7 +27,7 @@ const RequirementCheckout = (req, res) => {
           items: req.body,
         },
         amount: {
-          currency: "USD",
+          currency: "VND",
           total: total,
         },
         description: "This is the payment description.",

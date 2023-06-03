@@ -1,12 +1,12 @@
 const { Tickets, Seats, Users, sequelize } = require("../models");
 const { QueryTypes } = require("sequelize");
 
-const create = async (req, res) => {
-  const { userId, listTicket } = req.body;
+const create = async (req, res, next) => {
+  const { user, listTicket } = req.body;
   try {
     const checkUser = await Users.findOne({
       where: {
-        id: userId,
+        id: user.id,
         isActive: true,
       },
     });
@@ -19,21 +19,19 @@ const create = async (req, res) => {
         } else {
           const newTicket = await Tickets.create({
             seatId: ticket.id,
-            userId,
+            userId: user.id,
             price: ticket.price,
           });
           if (newTicket) {
-            seat.idUser = userId;
+            seat.idUser = user.id;
             seat.bookded = true;
             await seat.save();
             await ticketSuccess.push(seat);
           }
         }
       }
-      res.status(201).send({
-        message: "Đặt vé thành công",
-        data: ticketSuccess,
-      });
+      req.ticketSuccess = ticketSuccess;
+      next();
     } else {
       res.status(400).send("Tài khoản tạm đã bị khóa");
     }

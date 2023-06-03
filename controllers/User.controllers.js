@@ -300,24 +300,38 @@ const BlockAndUnBlock = async (req, res) => {
     res.status(500).send(error);
   }
 };
+const sendVerify = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    const checkUser = await Users.findOne({ where: { email } });
+    req.userRegister = checkUser;
+    next();
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
 const verifyEmail = async (req, res) => {
   const { email, id } = req.query;
-  console.log(email);
   try {
     const userVerify = await Users.findOne({ where: { id } });
+    if (userVerify.isVerify) {
+      res
+        .status(200)
+        .send(`Email ${userVerify.email} của bạn đã được xác minh từ trước đó`);
+    }
     if (compareBcrypt(userVerify.email, email)) {
-      console.log("aaa");
       userVerify.isVerify = true;
       await userVerify.save();
     }
-    res.send(`Email ${userVerify.email} của bạn đã được xác minh`);
+    res.status(200).send(`Email ${userVerify.email} của bạn đã được xác minh`);
   } catch (error) {
-    console.log(error);
+    res.status(500).send(error);
   }
 };
 
 module.exports = {
   verifyEmail,
+  sendVerify,
   signUp,
   signIn,
   updateUser,

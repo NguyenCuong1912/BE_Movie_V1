@@ -14,6 +14,7 @@ const {
   BlockAndUnBlock,
   getUserWithShowTimeID,
   verifyEmail,
+  sendVerify,
 } = require("../controllers/User.controllers");
 const { uploadImage } = require("../middleware/uploads/upload-images");
 const {
@@ -23,6 +24,13 @@ const { sendMail } = require("../middleware/nodoMailer");
 const userRouter = express.Router();
 
 userRouter.post("/signUp", signUp, contentVerifyEmail, sendMail);
+userRouter.post(
+  "/sendVerify",
+  authentication,
+  sendVerify,
+  contentVerifyEmail,
+  sendMail
+);
 userRouter.post("/signIn", signIn);
 userRouter.get("/verify", verifyEmail);
 userRouter.put(

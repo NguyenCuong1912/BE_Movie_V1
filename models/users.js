@@ -54,6 +54,9 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: false,
         type: DataTypes.BOOLEAN,
       },
+      linkVerify: {
+        type: DataTypes.STRING,
+      },
       isBlock: {
         defaultValue: false,
         type: DataTypes.BOOLEAN,

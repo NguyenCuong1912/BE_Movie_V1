@@ -32,6 +32,9 @@ module.exports = {
         defaultValue: false,
         type: Sequelize.BOOLEAN,
       },
+      linkVerify: {
+        type: Sequelize.STRING,
+      },
       isBlock: {
         defaultValue: false,
         type: Sequelize.BOOLEAN,

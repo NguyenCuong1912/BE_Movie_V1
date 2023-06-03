@@ -1,6 +1,5 @@
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
-const { contentVerifyEmail } = require("./contentMail/contentVerifyEmail");
 require("dotenv").config();
 
 const CLIENT_ID = process.env.CLIENT_ID;
@@ -36,10 +35,17 @@ const sendMail = async (req, res) => {
       attachDataUrls: true, //to accept base64 content in messsage
       html: req.sendMail, // html body
     });
-    res.status(201).send({
-      notify: "SUCCESS",
-      newUser: req.userRegister,
-    });
+    if (req.userRegister) {
+      res.status(201).send({
+        notify: "SUCCESS",
+        newUser: req.userRegister,
+      });
+    } else {
+      res.status(201).send({
+        notify: "SUCCESS",
+        // newUser: req.ticketSuccess,
+      });
+    }
   } catch (error) {
     res.status(500).send(error);
   }
